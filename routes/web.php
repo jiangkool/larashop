@@ -11,6 +11,28 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/',['uses'=>'PagesController@root','middleware'=>'verified','as'=>'root']);
+
+Auth::routes(['verify' => true]);
+
+// Route::get('/home', 'HomeController@index')->name('home');
+
+Route::group(['middleware' => ['auth','verified']], function() {
+
+    Route::get('user_addresses', 'UserAddressController@index')->name('user_addresses.index');
+    Route::get('user_addresses/create', 'UserAddressController@create')->name('user_addresses.create');
+    Route::post('user_addresses', 'UserAddressController@store')->name('user_addresses.store');
+    Route::get('user_addresses/{user_address}/edit', 'UserAddressController@edit')->name('user_addresses.edit');
+    Route::put('user_addresses/{user_address}', 'UserAddressController@update')->name('user_addresses.update');
+    Route::delete('user_addresses/{user_address}', 'UserAddressController@destroy')->name('user_addresses.destroy');
+
+    //收藏 & 取消收藏
+    Route::post('products/{product}/favorite', 'ProductController@favor')->name('products.favor');
+    Route::delete('products/{product}/favorite', 'ProductController@disfavor')->name('products.disfavor');
+
+    Route::get('favorites','ProductController@favorites')->name('products.favorites');
+
 });
+
+Route::get('/products', 'ProductController@index')->name('products.index');
+Route::get('/products/{product}', 'ProductController@show')->name('products.show');
