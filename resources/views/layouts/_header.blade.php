@@ -13,6 +13,7 @@
             {{ Auth::user()->name }}
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="{{ route('orders.index') }}">订单列表</a>
             <a class="dropdown-item" href="{{ route('user_addresses.index') }}">收货地址</a>
             <a class="dropdown-item" href="{{ route('products.favorites') }}">我的收藏</a>
             <a class="dropdown-item" href="{{ route('cart.index') }}">购物车</a>

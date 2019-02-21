@@ -18,6 +18,16 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'Illuminate\Database\Events\QueryExecuted' => [
+            'App\Listeners\QueryListener'
+        ],
+        'App\Events\OrderPaid'=>[
+            'App\Listeners\UpdateProductSoldCount',
+            'App\Listeners\SendOrderPaidMail'
+        ],
+        'App\Events\OrderReviewed'=>[
+            'App\Listeners\UpdateProductRating'
+        ]
     ];
 
     /**

@@ -11,7 +11,9 @@
 |
 */
 
-Route::get('/',['uses'=>'PagesController@root','middleware'=>'verified','as'=>'root']);
+Route::get('/',function(){
+    return redirect('/products');
+})->name('root');
 
 Auth::routes(['verify' => true]);
 
@@ -39,8 +41,25 @@ Route::group(['middleware' => ['auth','verified']], function() {
 
     //订单模块
     Route::post('orders', 'OrdersController@store')->name('orders.store');
+    Route::get('orders', 'OrdersController@index')->name('orders.index');
+    Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
+    Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received');
+    // 支付模块
+    Route::get('payment/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
+    // 支付宝前端回调
+    Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
+
+    Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
+    Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
+
+    Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
 
 });
 
+// 支付宝后端回调
+Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
+
 Route::get('/products', 'ProductController@index')->name('products.index');
 Route::get('/products/{product}', 'ProductController@show')->name('products.show');
+
+Route::post('payment/wechat/refund_notify', 'PaymentController@wechatRefundNotify')->name('payment.wechat.refund_notify');
