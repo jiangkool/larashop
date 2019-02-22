@@ -20,4 +20,12 @@ Route::group([
     $router->post('orders/{order}/ship', 'OrdersController@ship')->name('admin.orders.ship');
 
     $router->post('orders/{order}/refund', 'OrdersController@handleRefund')->name('admin.orders.handle_refund');
+
+
+    $router->post('coupon_codes', 'CouponCodeController@store');
+    $router->get('coupon_codes/create', 'CouponCodeController@create');
+    $router->get('coupon_codes/{id}/edit', 'CouponCodeController@edit');
+    $router->put('coupon_codes/{id}', 'CouponCodeController@update');
+
+    $router->get('coupon_codes', 'CouponCodeController@index');
 });

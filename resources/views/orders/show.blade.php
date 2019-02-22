@@ -51,7 +51,13 @@
           <span>订单总价：</span>
           <div class="value">￥{{ $order->total_amount }}</div>
         </div>
-        <div>
+         <!-- 展示优惠信息开始 -->
+        @if($order->couponCode)
+        <div class="text-primary">
+          <span>优惠信息：</span><div class="value">{{ $order->couponCode->description }}</div>
+        </div>
+        @endif
+        <!-- 展示优惠信息结束 -->
           <span>订单状态：</span>
           <div class="value">
             @if($order->paid_at)

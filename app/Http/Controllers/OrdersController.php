@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use App\Models\UserAddress;
+use App\Models\CouponCode;
 use App\Services\OrderService;
 use App\Exceptions\InvalidRequestException;
 use Carbon\Carbon;
@@ -19,21 +20,25 @@ class OrdersController extends Controller
     {
     	$user=$request->user();
         $address = UserAddress::find($request->input('address_id'));
-
-    	return $orderService->store($user,$address,$request->remark,$request->items);
+        $coupon=null;
+        if ($request->input('coupon_code')) {
+            $coupon= CouponCode::where('enabled',true)->where('code',$request->input('coupon_code'))->first();
+             if (!$coupon) {
+                throw new InvalidRequestException('优惠券不存在',404);
+            }
+        }
+        
+    	return $orderService->store($user,$address,$request->remark,$request->items,$coupon);
     }
 
 
     public function index(Request $request)
     {
     	$user=$request->user();
-    	$orders=$user->orders()->with(['items.product', 'items.productSku'])->orderBy('created_at', 'desc')->paginate(10);
-    	// $orders = Order::query()
-     //        // 使用 with 方法预加载，避免N + 1问题
-     //        ->with(['items.product', 'items.productSku']) 
-     //        ->where('user_id', $request->user()->id)
-     //        ->orderBy('created_at', 'desc')
-     //        ->get();
+    	$orders=$user->orders()
+        ->with(['items.product', 'items.productSku'])
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
     	
     	return view('orders.index',compact('orders'));
     }

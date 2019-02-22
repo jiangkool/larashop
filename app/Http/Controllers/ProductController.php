@@ -28,6 +28,13 @@ class ProductController extends Controller
     		$favored = boolval($user->favoriteProducts()->find($product->id));
     	}
 
+
+        $data=OrderItem::query()
+            ->where(function($query){
+                $query->where('id',1)->orWhere('id',2);
+            })->get();
+            
+            
         $reviews = OrderItem::query()
             ->where('product_id', $product->id)
             ->whereNotNull('reviewed_at') // 筛选出已评价的

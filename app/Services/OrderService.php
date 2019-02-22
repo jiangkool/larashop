@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Order;
 use App\Models\ProductSku;
+use App\Models\CouponCode;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;
 use Carbon\Carbon;
@@ -12,9 +13,12 @@ use Carbon\Carbon;
 
 class OrderService
 {
-	public function store(User $user, UserAddress $address, $remark, $items)
+	public function store(User $user, UserAddress $address, $remark, $items,CouponCode $coupon = null)
 	{
-		$order=\DB::transaction(function () use($user, $address, $remark, $items) {
+		if ($coupon) {
+			$coupon->checkAvailable($user);
+		}
+		$order=\DB::transaction(function () use($user, $address, $remark, $items,$coupon) {
 		    
 			//更新地址最后使用时间
 			$address->update(['last_used_at',Carbon::now()]);
@@ -57,6 +61,15 @@ class OrderService
 			        throw new InvalidRequestException('该商品库存不足');
 			    }
 
+			}
+
+			if ($coupon) {
+				 $coupon->checkAvailable($user,$totalAmount);
+				 $totalAmount = $coupon->getAdjustedPrice($totalAmount);
+				 $order->couponCode()->associate($coupon);
+				 if ($coupon->changeUsed() <= 0) {
+                    throw new InvalidRequestException('该优惠券已被兑完');
+                }
 			}
 
 			$order->update(['total_amount'=>$totalAmount]);
